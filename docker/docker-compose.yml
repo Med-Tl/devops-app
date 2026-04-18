@@ -25,7 +25,7 @@ services:
       - "4200:80"
 
   jenkins:
-    image: jenkins/jenkins:lts
+    build: ./jenkins
     container_name: jenkins
     user: root
     ports:
