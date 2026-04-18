@@ -1,0 +1,39 @@
+services:
+
+  db:
+    image: postgres
+    container_name: postgres_db
+    environment:
+      POSTGRES_DB: devopsdb
+      POSTGRES_USER: devuser
+      POSTGRES_PASSWORD: 123456
+    ports:
+      - "5432:5432"
+
+  backend:
+    build: ../backend/demo
+    container_name: spring_backend
+    ports:
+      - "8089:8089"
+    depends_on:
+      - db
+
+  frontend:
+    build: ../frontend
+    container_name: angular_frontend
+    ports:
+      - "4200:80"
+
+  jenkins:
+    image: jenkins/jenkins:lts
+    container_name: jenkins
+    user: root
+    ports:
+      - "8088:8080"
+      - "50000:50000"
+    volumes:
+      - jenkins_home:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock
+
+volumes:
+  jenkins_home:
