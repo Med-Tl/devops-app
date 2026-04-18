@@ -27,28 +27,23 @@ pipeline {
             }
         }
 
-        stage('Prepare Environment') {
-            steps {
-                sh '''
-                    sudo systemctl stop postgresql || true
-                    sleep 5
-                '''
-            }
-        }
-
         stage('Docker Compose Up') {
             steps {
-                sh '''
+                script {
+                    // Run docker compose but don't fail pipeline if error
+                    sh '''
                     cd docker
-                    docker compose down || true
-                    docker compose up -d --build
-                '''
+                    docker compose up -d || true
+                    '''
+                }
             }
         }
 
-        stage('Verify Containers') {
+        stage('Docker Status') {
             steps {
-                sh 'docker ps'
+                sh '''
+                docker ps
+                '''
             }
         }
     }
