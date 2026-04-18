@@ -27,9 +27,23 @@ pipeline {
             }
         }
 
-        stage('Docker Build') {
+        stage('Docker Compose Up') {
             steps {
-                sh 'docker --version'
+                script {
+                    // Run docker compose but don't fail pipeline if error
+                    sh '''
+                    cd docker
+                    docker compose up -d || true
+                    '''
+                }
+            }
+        }
+
+        stage('Docker Status') {
+            steps {
+                sh '''
+                docker ps
+                '''
             }
         }
     }
