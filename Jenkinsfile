@@ -3,7 +3,7 @@ pipeline {
 
     tools {
         maven 'maven3'
-        nodejs 'node18'
+        nodejs 'node20'
     }
 
     stages {
@@ -27,23 +27,32 @@ pipeline {
             }
         }
 
-        stage('Docker Compose Up') {
+        stage('SonarQube Analysis') {
             steps {
-                script {
-                    // Run docker compose but don't fail pipeline if error
+                withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
                     sh '''
-                    cd docker
-                    docker compose up -d || true
+                        cd backend/demo
+                        mvn sonar:sonar \
+                        -Dsonar.projectKey=devops-app \
+                        -Dsonar.host.url=http://localhost:9000 \
+                        -Dsonar.login=$SONAR_TOKEN
                     '''
                 }
             }
         }
 
-        stage('Docker Status') {
+        stage('Docker Compose Up') {
             steps {
                 sh '''
-                docker ps
+                cd docker
+                docker compose up -d || true
                 '''
+            }
+        }
+
+        stage('Docker Status') {
+            steps {
+                sh 'docker ps'
             }
         }
     }
